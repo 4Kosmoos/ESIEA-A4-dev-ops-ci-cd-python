@@ -157,3 +157,16 @@ jobs:
           ls -la ShuFirminPython/
           zip -r ShuFirminPython.zip ShuFirminPython/
           ls -lh ShuFirminPython.zip
+
+      - name: deploiement
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lftp
+          lftp -c "
+            set ftp:ssl-allow yes;
+            set ssl:verify-certificate no;
+            open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_SERVER }}
+            cd RenduDevopsKube;
+            put ShuFirminPython.zip;
+            bye
+          "

@@ -60,3 +60,37 @@ jobs:
       - name: run benchmarks légers
         run: |
           pytest tests/test-benchmark.py
+  docker :
+    needs: performance-tests
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: login ghcr
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: metadata for docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/owner/repo/flask-api
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: build and push image docker vers ghrc
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

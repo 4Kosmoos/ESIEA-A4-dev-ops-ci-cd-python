@@ -51,4 +51,4 @@ jobs:
 
       - name: run unit tests
         run: |
-          pytest tests/test-api
+          pytest tests/test-api.py

@@ -56,3 +56,7 @@ jobs:
       - name: run db tests
         run: |
           pytest tests/test-db.py
+
+      - name: run benchmarks légers
+        run: |
+          pytest tests/test-benchmark.py

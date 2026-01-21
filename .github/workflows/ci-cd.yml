@@ -61,7 +61,7 @@ jobs:
         run: |
           pytest tests/test-benchmark.py
   docker :
-    needs: performance-tests
+    needs: tests
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 

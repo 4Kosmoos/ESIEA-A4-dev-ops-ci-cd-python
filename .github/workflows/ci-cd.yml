@@ -129,7 +129,7 @@ jobs:
           echo "image: ghcr.io/${{ github.repository }}:latest"
 
   kubernetes:
-    name: kubernetes manifests
+    name: Step 5 kubernetes manifests
     runs-on: ubuntu-latest
     needs: ghcr
   
@@ -147,5 +147,13 @@ jobs:
         run: |
           mkdir -p manifests
           cd manifests
-          kompose -f ../docker-compose.prod.yml convert -o .
+          kompose -f ../docker-compose.yml convert -o .
           ls -la
+
+      - name: deployment package
+        run: |
+          mkdir -p ShuFirminPython
+          cp manifests/* ShuFirminPython/
+          ls -la ShuFirminPython/
+          zip -r ShuFirminPython.zip ShuFirminPython/
+          ls -lh ShuFirminPython.zip

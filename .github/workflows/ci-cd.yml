@@ -146,10 +146,20 @@ jobs:
 
       - name: generate manifests
         run: |
+          IMAGE="ghcr.io/${{ github.repository }}/flask-api:latest"
+          awk -v img="$IMAGE" '
+            /^  app:$/ {print; inapp=1; next}
+            inapp && /^    build:/ {print "    image: " img; print; inapp=0; next}
+            {print}
+          ' docker-compose.yml > docker-compose.ci.yml
+
+          cat docker-compose.ci.yml
+
           mkdir -p manifests
           cd manifests
-          kompose -f ../docker-compose.yml convert -o .
+          kompose -f docker-compose.ci.yml convert -o manifests/
           ls -la
+          rm docker-compose.ci.yml
 
       - name: deployment package
         run: |

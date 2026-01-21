@@ -143,6 +143,12 @@ jobs:
           chmod +x kompose
           sudo mv kompose /usr/local/bin/
 
+      - name: Patch image in manifests
+        run: |
+          IMAGE="ghcr.io/${{ github.repository }}/flask-api:latest"
+          sed -i "s|image: app|image: ${IMAGE}|g" manifests/*deployment*.yaml
+          grep -R "image:" -n manifests
+
       - name: generate manifests
         run: |
           mkdir -p manifests

@@ -86,7 +86,7 @@ jobs:
       run: docker compose down -v
        
   ghcr:
-    name: Step 4 ghrc
+    name: Step 4 ghcr
     needs: docker
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -115,7 +115,7 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: build and push image docker vers ghrc
+      - name: build and push image docker vers ghcr
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -126,13 +126,14 @@ jobs:
 
       - name: image docker pushed
         run: |
-          echo "image: ghcr.io/${{ github.repository }}:latest"
+          echo "image: ghcr.io/${{ github.repository }}/flask-api:latest"
 
   kubernetes:
     name: Step 5 kubernetes manifests
     runs-on: ubuntu-latest
     needs: ghcr
-  
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
     steps:
       - name: checkout code
         uses: actions/checkout@v4
@@ -142,12 +143,6 @@ jobs:
           curl -L https://github.com/kubernetes/kompose/releases/download/v1.38.0/kompose-linux-amd64 -o kompose
           chmod +x kompose
           sudo mv kompose /usr/local/bin/
-
-      - name: Patch image in manifests
-        run: |
-          IMAGE="ghcr.io/${{ github.repository }}/flask-api:latest"
-          sed -i "s|image: app|image: ${IMAGE}|g" manifests/*deployment*.yaml
-          grep -R "image:" -n manifests
 
       - name: generate manifests
         run: |

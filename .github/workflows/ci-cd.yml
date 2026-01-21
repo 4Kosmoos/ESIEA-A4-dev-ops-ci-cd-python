@@ -127,3 +127,25 @@ jobs:
       - name: image docker pushed
         run: |
           echo "image: ghcr.io/${{ github.repository }}:latest"
+
+  kubernetes:
+    name: kubernetes manifests
+    needs: ghcr
+    runs-on: ubuntu-latest
+  
+      steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+        
+      - name: installation Kompose
+        run: |
+          curl -L https://github.com/kubernetes/kompose/releases/download/v1.38.0/kompose-linux-amd64 -o kompose
+          chmod +x kompose
+          sudo mv kompose /usr/local/bin/
+
+      - name: generate manifests
+        run: |
+          mkdir -p manifests
+          cd manifests
+          kompose -f ../docker-compose.prod.yml convert -o .
+          ls -la

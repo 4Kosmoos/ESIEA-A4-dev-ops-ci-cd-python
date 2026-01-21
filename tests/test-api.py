@@ -59,4 +59,4 @@ def test_dothing_invalid_meta(client):
         "meta": [1, 2, 3, 4, 5]
     })
     assert response.status_code == 400
-    assert "meta must be at least 9 values" in response.json["error"]
+    assert "meta must be a list of 9 values" in response.json["error"]

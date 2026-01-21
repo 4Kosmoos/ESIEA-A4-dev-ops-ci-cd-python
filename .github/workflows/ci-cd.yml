@@ -62,6 +62,7 @@ jobs:
           pytest tests/test-benchmark.py
 
   docker:
+    name: Step 3 Docker
     runs-on: ubuntu-latest
     needs: tests
 
@@ -85,6 +86,7 @@ jobs:
       run: docker compose down -v
        
   ghcr:
+    name: Step 4 ghrc
     needs: docker
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -121,3 +123,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: image docker pushed
+        run: |
+          echo "image: ghcr.io/${{ github.repository }}:latest"

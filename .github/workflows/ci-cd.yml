@@ -30,7 +30,7 @@ jobs:
         run: |
           ruff check .
 
-  tests :
+  tests:
     name: Step 2 Tests
     runs-on: ubuntu-latest
     needs: lint
@@ -60,11 +60,38 @@ jobs:
       - name: run benchmarks légers
         run: |
           pytest tests/test-benchmark.py
-  docker :
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: tests
+
+    steps:
+    - name: checkout code
+      uses: actions/checkout@v4
+
+    - name: building image and starting services
+      run: |
+        docker compose build 
+        docker compose up -d
+
+    - name: Waiting service started healthy
+      run: |
+        echo "waiting for service started healthy..."
+        timeout 60 bash -c 'until docker compose ps | grep -q "healthy"; do sleep 2; done'
+        docker compose ps
+
+    - name: composer down
+      if: always()
+      run: docker compose down -v
+       
+  ghrc:
     needs: tests
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-
+    permissions:
+      contents: read
+      packages: write
+      
     steps:
       - name: checkout code
         uses: actions/checkout@v4
